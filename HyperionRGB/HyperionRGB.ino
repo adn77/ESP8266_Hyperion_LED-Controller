@@ -8,20 +8,18 @@
 #include "LoggerInit.h"
 
 #include "WrapperWiFi.h"
-#include "WrapperOTA.h"
 #include "WrapperLedControl.h"
 #include "WrapperUdpLed.h"
 #include "WrapperJsonServer.h"
 
 #include "WrapperWebconfig.h"
 
-#define LED D0 // LED in NodeMCU at pin GPIO16 (D0).
+#define LED 0 // LED in NodeMCU at pin GPIO16 (D0).
 int ledState = LOW;
 
 LoggerInit loggerInit;
 
 WrapperWiFi wifi;
-WrapperOTA ota;
 
 WrapperLedControl ledStrip;
 
@@ -97,7 +95,12 @@ void changeMode(Mode newMode, int interval = 0) {
 void updateLed(int id, byte r, byte g, byte b) {
   if (activeMode == HYPERION_UDP) {
     Log.verbose("LED %i, r=%i, g=%i, b=%i", id + 1, r, g, b);
-    ledStrip.leds[id].setRGB(r, g, b);
+    #ifdef HW_FASTLED
+      ledStrip.leds[id].setRGB(r, g, b);
+    #elif HW_NEOPIXEL
+     ledStrip.setPixel( id, r, g, b );
+     ledStrip.show();
+    #endif
   }
 }
 void refreshLeds(void) {
@@ -143,7 +146,7 @@ void initConfig(void) {
   #ifdef CONFIG_ENABLE_WEBCONFIG
     //TODO Fallback
     ConfigStruct* cfg = Config::getConfig();
-    
+
     ssid = cfg->wifi.ssid;
     password = cfg->wifi.password;
     ip = Config::cfg2ip(cfg->wifi.ip);
@@ -172,16 +175,21 @@ void initConfig(void) {
     
     Log.info("CFG=%s", "Static config loaded");
   #endif
-  
+
   wifi = WrapperWiFi(ssid, password, ip, subnet, dns);
-  udpLed = WrapperUdpLed(CONFIG_LED_COUNT, udpLedPort);
-  jsonServer = WrapperJsonServer(CONFIG_LED_COUNT, jsonServerPort);
+  #ifdef CONFIG_ENABLE_WEBCONFIG
+    udpLed = WrapperUdpLed(Config::getConfig()->led.count, udpLedPort);
+    jsonServer = WrapperJsonServer(Config::getConfig()->led.count, jsonServerPort);
+  #else
+    udpLed = WrapperUdpLed(CONFIG_LED_COUNT, udpLedPort);
+    jsonServer = WrapperJsonServer(CONFIG_LED_COUNT, jsonServerPort);
+  #endif
 }
 
 void handleEvents(void) {
-  ota.handle();
   udpLed.handle();
   jsonServer.handle();
+
   #ifdef CONFIG_ENABLE_WEBCONFIG
     webServer.handle();
   #endif
@@ -193,7 +201,6 @@ void setup(void) {
   LoggerInit loggerInit = LoggerInit(115200);
   
   initConfig();
-  ota = WrapperOTA();
   ledStrip = WrapperLedControl();
 
   statusThread.onRun(statusInfo);
@@ -218,13 +225,8 @@ void setup(void) {
 
   wifi.begin();
 
-  #ifdef CONFIG_ENABLE_WEBCONFIG
-    webServer = WrapperWebconfig();
-    webServer.begin();
-    ota.begin(Config::getConfig()->wifi.hostname);
-  #else
-    ota.begin(CONFIG_WIFI_HOSTNAME); 
-  #endif
+  webServer = WrapperWebconfig();
+  webServer.begin();
 
   if (autoswitch || activeMode == HYPERION_UDP)
     udpLed.begin();
