@@ -21,6 +21,18 @@ Compared to the original Code this contains:
  - NeoPixelBus library for clockless strips
  - WebOTA (please configure for your own server!)
 
+In Hyperion I use:
+        "device" :
+        {
+                "type" : "udp",
+                "output" : "esp8266-hyperion:19446",
+                "maxpacket" : 1450,
+                "protocol" : 0,
+                "rate" : 96000,
+                "colorOrder" : "rgb"
+        },
+
+
 German Tutorial:
 http://www.forum-raspberrypi.de/Thread-hyperion-tutorial-esp8266-nodemcu-addon-wifi-led-controller-udp
 
