@@ -34,7 +34,7 @@ In Hyperion I use:
 
 
 German Tutorial:
-http://www.forum-raspberrypi.de/Thread-hyperion-tutorial-esp8266-nodemcu-addon-wifi-led-controller-udp
+https://forum-raspberrypi.de/forum/thread/25242-tutorial-esp8266-nodemcu-addon-wifi-led-controller-udp/
 
 Tested with following following libraries (other versions may work):
 #IDE
