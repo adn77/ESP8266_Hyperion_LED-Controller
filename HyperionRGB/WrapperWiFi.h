@@ -4,6 +4,7 @@
 #include "BaseHeader.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
+#include <ESP8266httpUpdate.h>
 
 class WrapperWiFi {
   public:

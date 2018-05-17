@@ -24,10 +24,11 @@ void Config::initConfig(void) {
     } else {
       //init config
       _cfgStruct.version = CONFIG_ACTIVE_VERSION;
-      strncpy(_cfgStruct.wifi.hostname, "ESP8266", 32);
+      strncpy(_cfgStruct.wifi.hostname, CONFIG_WIFI_HOSTNAME, 32);
       _cfgStruct.ports.jsonServer = 19444;
       _cfgStruct.ports.udpLed = 19446;
       _cfgStruct.led.timeoutMs = 5000;
+      _cfgStruct.led.count = 15;
       _cfgStruct.led.autoswitch = true;
       EEPROM.end();
       saveConfig();
@@ -72,6 +73,7 @@ void Config::loadStaticConfig(void) {
   _cfgStruct.led.idleMode = CONFIG_LED_STANDARD_MODE;
   _cfgStruct.led.timeoutMs = CONFIG_LED_STANDARD_MODE_TIMEOUT_MS; 
   _cfgStruct.led.autoswitch = CONFIG_LED_HYPERION_AUTOSWITCH;
+  _cfgStruct.led.count = CONFIG_LED_COUNT; 
 
   _cfgStruct.ports.jsonServer = CONFIG_PORT_JSON_SERVER;
   _cfgStruct.ports.udpLed = CONFIG_PORT_UDP_LED;
@@ -96,6 +98,7 @@ void Config::logConfig(void) {
   Log.debug("  idleMode=%i", _cfgStruct.led.idleMode);
   Log.debug("  timeoutMs=%i", _cfgStruct.led.timeoutMs);
   Log.debug("  autoswitch=%i", _cfgStruct.led.autoswitch);
+  Log.debug("  LED count=%i", _cfgStruct.led.count);
 
   Log.debug("+PORTS+");
   Log.debug("  jsonServer=%i", _cfgStruct.ports.jsonServer);

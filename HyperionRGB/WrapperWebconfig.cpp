@@ -137,6 +137,8 @@ void WrapperWebconfig::changeConfig(void) {
       } else {
         cfg->led.autoswitch = false;
       }
+    } else if (argName == "led-count") {
+      cfg->led.count = argValue.toInt();
     } else if (argName == "saveRestart") {
       restart = true;
     } else if (argName == "loadStatic") {
@@ -174,12 +176,12 @@ String WrapperWebconfig::htmlTemplate(String title, String content) {
   
   html += "<title>" + title + "</title>";
 
-  html += "<script src=\"https://code.jquery.com/jquery-2.2.1.min.js\" integrity=\"sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00=\" crossorigin=\"anonymous\"></script>";
+  html += "<script src=\"https://code.jquery.com/jquery-2.2.4.min.js\" integrity=\"sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=\" crossorigin=\"anonymous\"></script>";
   //html += "<script src=\"https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css\"></script>";
 
-  html += "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\" integrity=\"sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7\" crossorigin=\"anonymous\">";
-  html += "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css\" integrity=\"sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r\" crossorigin=\"anonymous\">";
-  html += "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" crossorigin=\"anonymous\"></script>";
+  html += "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\" integrity=\"sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u\" crossorigin=\"anonymous\">";
+  html += "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css\" integrity=\"sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp\" crossorigin=\"anonymous\">";
+  html += "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\" integrity=\"sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa\" crossorigin=\"anonymous\"></script>";
 
   html += "<script>";
   html += "$(document).ready(function() {";
@@ -296,7 +298,7 @@ String WrapperWebconfig::config(void) {
   html += "<form class=\"form-horizontal\" method=\"post\">";
   html += "<fieldset>";
 
-  html += "<legend>ESP8266 LED Coniguration</legend>";
+  html += "<legend>ESP8266 Hyperion LED Configuration</legend>";
 
   groupContent = "";
   groupContent += textTemplate("WiFi SSID", "", "wifi-ssid", escape(cfg->wifi.ssid), "", sizeof(cfg->wifi.ssid)-1);
@@ -310,7 +312,7 @@ String WrapperWebconfig::config(void) {
   groupContent += textTemplate("Subnet","",  "wifi-subnet", ipToString(cfg->wifi.subnet), "255.255.255.0", 15);
   groupContent += textTemplate("DNS Server","",  "wifi-dns", ipToString(cfg->wifi.dns), "192.168.1.1", 15);
   
-  groupContent += textTemplate("Module Hostname","",  "wifi-hostname", escape(cfg->wifi.hostname), "ESP8266", sizeof(cfg->wifi.hostname)-1);
+  groupContent += textTemplate("Module Hostname","",  "wifi-hostname", escape(cfg->wifi.hostname), CONFIG_WIFI_HOSTNAME, sizeof(cfg->wifi.hostname)-1);
   
   html += groupTemplate("WiFi", groupContent);
   
@@ -326,6 +328,7 @@ String WrapperWebconfig::config(void) {
     groupContent += selectTemplate("LED Idle Mode", "", "led-idleMode", _idleModes);
     groupContent += checkboxTemplate("Autoswitch to Hyperion_UDP/Idle Mode", "Automatically switch to Hyperion_UDP when UDP Data arriving and switch back to idle mode after timeout", "led-autoswitch", cfg->led.autoswitch);
     groupContent += textTemplate("Timeout Fallback in MS", "Switches back to Idle Mode after x milliseconds when no UDP data is arriving",  "led-timeoutMs", escape(cfg->led.timeoutMs), "5000", 10);
+    groupContent += textTemplate("Number of LEDs", "Number of RGB LEDs in the stripe",  "led-count", escape(cfg->led.count), "15", 10);
     clearLinkedList(_idleModes);
     
     html += groupTemplate("LEDs", groupContent);

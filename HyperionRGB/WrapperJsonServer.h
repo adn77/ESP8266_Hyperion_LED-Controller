@@ -8,6 +8,16 @@
 
 #define TCP_BUFFER 512
 
+#ifndef HW_NEOPIXEL
+typedef struct {
+  double H;       // angle in degrees
+  double S;       // a fraction between 0 and 1
+  double L;       // a fraction between 0 and 1
+} hsl;
+#else
+  #include <NeoPixelBus.h>
+#endif
+
 class WrapperJsonServer {
   public:
     WrapperJsonServer();
@@ -23,8 +33,8 @@ class WrapperJsonServer {
       onEffectChange(void(* function) (Mode, int));
   private:
     void
-      handleConnection(boolean newClient),
-      readData(void);
+      handleConnection(int conn),
+      readData(int conn);
   
     void 
       ledColorWipe(byte r, byte g, byte b),
@@ -37,10 +47,21 @@ class WrapperJsonServer {
       (* effectChangePointer) (Mode, int);
   
     WiFiServer _tcpServer;
-    WiFiClient _tcpClient;
+    WiFiClient *_tcpClient[CONFIG_MAX_JSON_CLIENTS] = { NULL };
     
     uint16_t _ledCount;
     uint16_t _tcpPort;
-};
 
+    byte* _activeLedColor;
+
+    Mode _activeMode = OFF;
+
+    const char *effectName[5] = { "", "", "Hyperion UDP", "Rainbow Mood", "Fire 2012" };
+    const char *effectArgs[5] = { "", "", "{\"speed\":1.0}", "{\"speed\":2.0}", "{\"speed\":62.5}" };
+    const char *effectScript[5] = { "", "", "hyperion_udp", "rainbow", "fire2012" };
+
+    #ifndef HW_NEOPIXEL
+      static hsl rgb2hsl( double r, double g, double b);
+    #endif
+};
 #endif
